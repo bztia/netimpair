@@ -174,14 +174,21 @@ class NetemInstance(object):
             'tc qdisc add dev {0} parent 1:3 handle 30: netem'.format(
                 self.nic))
         while toggle:
-            loss_cmd = 'loss {}%'.format(loss_ratio) if loss_ratio != 0 else ''
-            loss_cmd += ' {}%'.format(loss_corr) if loss_corr != 0 else ''
+            netem_cmd = 'loss {}% '.format(loss_ratio) if loss_ratio else ''
+            netem_cmd += '{}% '.format(loss_corr) if loss_corr else ''
 
-            impair_cmd = 'tc qdisc change dev {0} parent 1:3 handle 30: ' \
-                'netem loss {1}% duplicate {2}% delay {3}ms {4}ms {5}% ' \
-                'reorder {6}% {7}%'.format(
-                    self.nic, loss_cmd, dup_ratio, delay, jitter,
-                    delay_jitter_corr, reorder_ratio, reorder_corr)
+            netem_cmd += 'duplicate {}% '.format(dup_ratio) if dup_ratio else ''
+
+            netem_cmd += 'delay {}ms '.format(delay) if delay else ''
+            netem_cmd += '{}ms '.format(jitter) if jitter else ''
+            netem_cmd += '{}% '.format(delay_jitter_corr) if delay_jitter_corr else ''
+
+            netem_cmd += 'reorder {}%  '.format(reorder_ratio) if reorder_ratio else ''
+            netem_cmd += '{}% '.format(reorder_corr) if reorder_corr else ''
+
+            impair_cmd = 'tc qdisc change dev {} parent 1:3 handle 30: ' \
+                'netem {} '.format(
+                    self.nic, netem_cmd)
             print('Setting network impairment:')
             print(impair_cmd)
             # Set network impairment
@@ -332,7 +339,7 @@ def parse_args():
     argparser.add_argument(
         '--exclude',
         action='append',
-        default=['dport=22', 'sport=22'],
+        default=['dport=22', 'sport=22', 'dport=8080', 'sport=8080'],
         help='ip addresses and/or ports to exclude from network '
         'impairment (example: --exclude src=ip,sport=portnum '
         '--exclude dst=ip,dport=portnum)')
