@@ -174,8 +174,8 @@ class NetemInstance(object):
             'tc qdisc add dev {0} parent 1:3 handle 30: netem'.format(
                 self.nic))
         while toggle:
-            loss_cmd = 'loss {}%'.format(loss_ratio) if loss_ratio else ''
-            loss_cmd += ' {}%'.format(loss_corr) if loss_corr else ''
+            loss_cmd = 'loss {}%'.format(loss_ratio) if loss_ratio != 0 else ''
+            loss_cmd += ' {}%'.format(loss_corr) if loss_corr != 0 else ''
 
             impair_cmd = 'tc qdisc change dev {0} parent 1:3 handle 30: ' \
                 'netem loss {1}% duplicate {2}% delay {3}ms {4}ms {5}% ' \
